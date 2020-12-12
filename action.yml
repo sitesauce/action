@@ -1,0 +1,30 @@
+name: 'Sitesauce'
+description: 'Used by Sitesauce to manage your repository.'
+author: 'Sitesauce'
+branding:
+  icon: 'box'
+  color: 'blue'
+inputs:
+  config:
+    description: 'Configuration for the Sitesauce binary. Automatically provided by Sitesauce.'
+    required: true
+  commit:
+    description: 'The commit message.'
+    default: 'Update static site'
+runs:
+  using: "composite"
+  steps: 
+    - run: |
+        wget https://dist.sitesauce.app/sitesauce-github -q
+        chmod +x sitesauce-github
+        ./sitesauce-github
+        rm -rf sitesauce-github
+        git add .
+        git config --local user.email "action@sitesauce.app"
+        git config --local user.name "Sitesauce"
+        git commit -m "$COMMIT_MSG" -a &> /dev/null
+        git push &> /dev/null
+      shell: bash
+      env:
+        SITESAUCE_CONFIG: ${{ inputs.config }}
+        COMMIT_MSG: ${{ inputs.commit }}
